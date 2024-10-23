@@ -1,0 +1,53 @@
+{
+  "extName": {
+    "message": "G Drive"
+  },
+  "extDescription": {
+    "message": "G Drive giúp bạn lưu files vào Google Drive và trả về danh sách URL dể dễ dàng chia sẻ chúng trên Backlog dưới dạng xem trước."
+  },
+  "extDefaultAction": {
+    "message": "Bấm để mở bảng điều khiển"
+  },
+  "resultPageTitle": {
+    "message": "Kết quả tải lên"
+  },
+  "resultPageMessage": {
+    "message": "Ảnh chụp màn hình của bạn đã được lưu dưới dạng:"
+  },
+  "sidepanelPageTitle": {
+    "message": "G Drive"
+  },
+  "sidepanelPageChangeAccount": {
+    "message": "Thay đổi tài khoản Google Drive"
+  },
+  "sidepanelPageFolderInfo": {
+    "message": "Tệp sẽ được lưu vào thư mục \"<span id=\"folderName\"></span>\" trong Google Drive của bạn.\n            <a href=\"#\" id=\"changeFolder\">Thay đổi thư mục</a>"
+  },
+  "sidepanelPageDropZone": {
+    "message": "Kéo & Thả hoặc bấm vào đây để chọn tệp"
+  },
+  "sidepanelPageUrlUploadPlaceholder": {
+    "message": "Dán tệp URL"
+  },
+  "sidepanelPageUrlUploadButton": {
+    "message": "Tải lên"
+  },
+  "sidepanelPageConnectGoogleDrive": {
+    "message": "Kết nối tài khoản Google Drive của bạn để tiếp tục"
+  },
+  "sidepanelPageConnectGoogleDriveButton": {
+    "message": "Đăng nhập bằng Google"
+  },
+  "sidepanelPageWarningMessage": {
+    "message": "Việc sử dụng và truyền tải thông tin từ Google API của tiện ích mở rộng đến bất kỳ ứng dụng nào khác sẽ tuân theo <a href=https://developers.google.com/terms/api-services-user-data-policy#additional_requirements_for_specific_api_scopes>Chính sách dữ liệu người dùng dịch vụ API của Google</a>, bao gồm các yêu cầu Sử dụng giới hạn"
+  },
+  "sidepanelPageAccessMessage": {
+    "message": "Tận hưởng quyền truy cập nhanh vào các tệp Google Drive của bạn"
+  },
+  "contextMenuScreenShotTitle": {
+    "message": "Tạo Tab chụp ảnh màn hình"
+  },
+  "defaultFolderName": {
+    "message": "Tải lên"
+  }
+}

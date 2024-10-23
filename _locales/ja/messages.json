@@ -1,0 +1,53 @@
+{
+  "extName": {
+    "message": "G Drive"
+  },
+  "extDescription": {
+    "message": "G Driveは、ファイルをGoogle Driveに保存し、それらのURLのリストを返します。これにより、Backlogでプレビューとして簡単に共有できます。"
+  },
+  "extDefaultAction": {
+    "message": "パネルを開くにはクリックします"
+  },
+  "resultPageTitle": {
+    "message": "アップロード結果"
+  },
+  "resultPageMessage": {
+    "message": "スクリーンショットは次のように保存されました。"
+  },
+  "sidepanelPageTitle": {
+    "message": "G Drive"
+  },
+  "sidepanelPageChangeAccount": {
+    "message": "Google Driveアカウントを変更"
+  },
+  "sidepanelPageFolderInfo": {
+    "message": "ファイルはGoogle Driveの「<span id=\"folderName\"></span>」フォルダに保存されます。\n            <a href=\"#\" id=\"changeFolder\">フォルダを変更</a>"
+  },
+  "sidepanelPageDropZone": {
+    "message": "ファイルをドラッグ＆ドロップするか、ここにクリックして選択します"
+  },
+  "sidepanelPageUrlUploadPlaceholder": {
+    "message": "ファイルのURLを貼り付けます"
+  },
+  "sidepanelPageUrlUploadButton": {
+    "message": "アップロード"
+  },
+  "sidepanelPageConnectGoogleDrive": {
+    "message": "続行するには、Google Driveアカウントを接続してください"
+  },
+  "sidepanelPageConnectGoogleDriveButton": {
+    "message": "Googleでログイン"
+  },
+  "sidepanelPageWarningMessage": {
+    "message": "拡張機能によるGoogle APIから受け取った情報の使用と、他のアプリへの転送は、<a href=https://developers.google.com/terms/api-services-user-data-policy#additional_requirements_for_specific_api_scopes>Google APIサービスユーザーデータポリシー</a>に従い、限定利用要件を含みます"
+  },
+  "sidepanelPageAccessMessage": {
+    "message": "Google Driveファイルに素早くアクセスできます"
+  },
+  "contextMenuScreenShotTitle": {
+    "message": "タブのスクリーンショットを撮る"
+  },
+  "defaultFolderName": {
+    "message": "アップロード"
+  }
+}

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <title>__MSG_sidepanelPageTitle__</title>
+    <link rel="stylesheet" href="sidepanel.css" />
+  </head>
+  <body>
+    <div class="app" style="display: none">
+      <button id="changeAccount" class="github-style-button">
+        __MSG_sidepanelPageChangeAccount__
+      </button>
+      <div id="folderInfo">__MSG_sidepanelPageFolderInfo__</div>
+      <div id="dropZone">__MSG_sidepanelPageDropZone__</div>
+      <div id="urlUpload">
+        <input
+          type="text"
+          id="fileUrl"
+          placeholder="__MSG_sidepanelPageUrlUploadPlaceholder__"
+        />
+        <button id="downloadFromUrl">
+          __MSG_sidepanelPageUrlUploadButton__
+        </button>
+      </div>
+      <div id="progressContainer"></div>
+      <input type="file" id="fileInput" multiple style="display: none" />
+    </div>
+
+    <div id="connectDrive" style="display: none">
+      <p>__MSG_sidepanelPageConnectGoogleDrive__</p>
+      <button id="connectDriveBtn">
+        <img
+          src="images/google-logo.png"
+          alt="Google Icon"
+          class="google-icon"
+        />
+        __MSG_sidepanelPageConnectGoogleDriveButton__
+      </button>
+      <div class="access-message">
+        <p>__MSG_sidepanelPageAccessMessage__</p>
+      </div>
+      <div class="access-message">
+        <p>__MSG_sidepanelPageWarningMessage__</p>
+      </div>
+    </div>
+
+    <script src="sidepanel.js"></script>
+  </body>
+</html>

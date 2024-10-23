@@ -1,0 +1,53 @@
+{
+  "extName": {
+    "message": "G Drive"
+  },
+  "extDescription": {
+    "message": "G Drive helps you save files to Google Drive and returns a list of URLs so you can easily share them on Backlog as previews."
+  },
+  "extDefaultAction": {
+    "message": "Click to open panel"
+  },
+  "resultPageTitle": {
+    "message": "Upload Result"
+  },
+  "resultPageMessage": {
+    "message": "Your screenshot was saved as:"
+  },
+  "sidepanelPageTitle": {
+    "message": "G Drive"
+  },
+  "sidepanelPageChangeAccount": {
+    "message": "Change Google Drive Account"
+  },
+  "sidepanelPageFolderInfo": {
+    "message": "Files will be saved in the \"<span id=\"folderName\"></span>\" folder on your Google Drive.\n            <a href=\"#\" id=\"changeFolder\">Change folder</a>"
+  },
+  "sidepanelPageDropZone": {
+    "message": "Drag & Drop or click here to choose files"
+  },
+  "sidepanelPageUrlUploadPlaceholder": {
+    "message": "Paste the file URL"
+  },
+  "sidepanelPageUrlUploadButton": {
+    "message": "Upload"
+  },
+  "sidepanelPageConnectGoogleDrive": {
+    "message": "Connect your Google Drive account to continue"
+  },
+  "sidepanelPageConnectGoogleDriveButton": {
+    "message": "Sign in with Google"
+  },
+  "sidepanelPageWarningMessage": {
+    "message": "The extension's use and transfer of information received from Google APIs to any other app will adhere to <a href=https://developers.google.com/terms/api-services-user-data-policy#additional_requirements_for_specific_api_scopes>Google API Services User Data Policy</a>, including the Limited Use requirements"
+  },
+  "sidepanelPageAccessMessage": {
+    "message": "Enjoy quick access to your Google Drive files"
+  },
+  "contextMenuScreenShotTitle": {
+    "message": "Make Tab Screenshot"
+  },
+  "defaultFolderName": {
+    "message": "Uploads"
+  }
+}

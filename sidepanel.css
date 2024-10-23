@@ -1,0 +1,355 @@
+/* normalize css starts here */
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+/* normalize css ends here */
+
+html {
+  font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial,
+    sans-serif;
+  color: #222;
+}
+
+body {
+  width: 100%;
+  height: 100vh;
+  margin: 0;
+  padding: 20px;
+  font-family: Arial, sans-serif;
+  border: 1px solid #d1d5da;
+  border-radius: 5px;
+  background-color: #f6f8fa;
+  overflow-y: auto;
+}
+
+.app {
+  overflow-y: auto;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  text-align: center;
+}
+
+.title {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.subtitle {
+  font-size: 12px;
+}
+
+code {
+  font-size: 12px;
+  font-family: inherit;
+  background-color: rgba(254, 237, 185, 0.3);
+  padding: 2px 4px;
+  border-radius: 2px;
+}
+
+.counter-label {
+  font-size: 12px;
+  margin-bottom: 5px;
+}
+
+.counter {
+  font-size: 36px;
+  font-weight: 700;
+}
+
+.button-container {
+  margin-top: 15px;
+}
+
+.button {
+  border: 0;
+  display: inline-block;
+  padding: 10px 20px;
+  margin-right: 4px;
+  margin-left: 4px;
+  background-color: bisque;
+  font-size: 16px;
+  cursor: pointer;
+  border-radius: 4px;
+  text-decoration: none;
+  transition: transform 0.2s ease;
+  user-select: none;
+}
+
+.button:focus {
+  outline: none;
+}
+
+.button:hover {
+  transform: scale(1.1);
+}
+
+.divider {
+  margin: 30px auto 25px;
+  width: 50px;
+  border: 5px dashed #000;
+  opacity: 0.1;
+}
+
+#dropZone {
+  width: 100%;
+  height: 150px;
+  border: 2px dashed #d1d5da;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 20px;
+  background-color: #fafbfc;
+  color: #24292e;
+  cursor: pointer;
+  border-radius: 5px;
+  font-size: 16px;
+  font-weight: 500;
+  min-height: 150px;
+  padding: 10px;
+}
+
+#dropZone:hover {
+  background-color: #f6f8fa;
+}
+
+#dropZone.dragover {
+  background-color: #f3f4f6;
+  border-color: #0366d6;
+  color: #0366d6;
+}
+
+#progressContainer {
+  width: 100%;
+  padding: 10px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+progress {
+  width: 100%;
+  height: 20px;
+  margin-bottom: 8px;
+  border: none;
+  appearance: none;
+  border-radius: 5px;
+  background-color: #e1e4e8;
+}
+
+progress::-webkit-progress-bar {
+  background-color: #e1e4e8;
+}
+
+progress::-webkit-progress-value {
+  background-color: #0366d6;
+}
+
+progress::-moz-progress-bar {
+  background-color: #0366d6;
+}
+
+span {
+  font-size: 14px;
+  margin-bottom: 5px;
+  color: #586069;
+}
+
+#progressContainer > div {
+  width: 100%;
+  margin-bottom: 15px;
+  border: 1px solid #d1d5da;
+  padding: 10px;
+  border-radius: 4px;
+  background-color: #fff;
+}
+
+#progressContainer > div div {
+  font-size: 12px;
+  color: #586069;
+  margin-top: 5px;
+  text-align: left;
+  word-wrap: break-word;
+}
+
+.uploading-file-name {
+  font-size: 14px;
+  color: #0366d6;
+  margin-bottom: 5px;
+  text-align: left;
+  word-wrap: break-word;
+}
+
+#folderInfo {
+  font-size: 12px;
+  color: #586069;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+#urlUpload {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+#fileUrl {
+  flex-grow: 1;
+  padding: 8px 10px;
+  border: 1px solid #d1d5da;
+  border-radius: 4px;
+  font-size: 14px;
+  margin-right: 10px;
+  outline: none;
+  transition: border 0.2s;
+}
+
+#fileUrl:focus {
+  border-color: #0366d6;
+}
+
+#downloadFromUrl {
+  padding: 8px 15px;
+  background-color: #fafbfc;
+  border: 1px solid #d1d5da;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s, border 0.2s;
+}
+
+#downloadFromUrl:hover {
+  background-color: #f6f8fa;
+  border-color: #0366d6;
+}
+
+#downloadFromUrl:focus {
+  outline: none;
+  border-color: #0366d6;
+}
+
+.done-message {
+  font-size: 14px;
+  color: #28a745;
+  margin-left: 10px;
+  font-weight: bold;
+}
+
+.github-style-button {
+  padding: 6px 12px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #24292e;
+  background-color: #eff3f6;
+  background-image: linear-gradient(-180deg, #fafbfc, #eff3f6 90%);
+  border: 1px solid rgba(27, 31, 35, 0.2);
+  border-radius: 3px;
+  cursor: pointer;
+  transition: background-color 0.2s, border-color 0.2s, box-shadow 0.2s;
+  outline: none;
+  margin-bottom: 10px;
+}
+
+.github-style-button:hover {
+  background-color: #e6ebf1;
+  background-image: linear-gradient(-180deg, #f0f3f6, #e6ebf1 90%);
+  border-color: rgba(27, 31, 35, 0.35);
+  box-shadow: 0 1px 0 rgba(27, 31, 35, 0.1);
+}
+
+.github-style-button:focus {
+  border-color: #0366d6;
+  box-shadow: 0 0 0 3px rgba(3, 102, 214, 0.3);
+}
+
+.error-message {
+  border: 2px solid red !important;
+  color: red;
+  font-weight: bold;
+  padding: 10px;
+  border-radius: 4px;
+  margin-bottom: 20px;
+  position: relative;
+  z-index: 1000;
+}
+
+.error-message button {
+  background: none;
+  border: none;
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  cursor: pointer;
+}
+
+.failed-message {
+  color: red;
+  font-weight: bold;
+  margin-left: 10px;
+}
+
+#connectDrive {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 50%;
+  padding: 20px;
+  border: 1px solid #d1d5da;
+  border-radius: 5px;
+  background-color: #f6f8fa;
+  text-align: center;
+  min-height: 500px;
+}
+
+#connectDrive p {
+  font-size: 16px;
+  margin-bottom: 20px;
+  color: #24292e;
+}
+
+.access-message {
+  margin-top: 10px;
+}
+
+.access-message p {
+  font-size: 12px !important;
+}
+
+#connectDriveBtn {
+  padding: 8px 15px;
+  background-color: #fafbfc;
+  border: 1px solid #d1d5da;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s, border-color 0.2s;
+  font-weight: 600;
+  color: #24292e;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#connectDriveBtn:hover {
+  background-color: #f6f8fa;
+  border-color: #0366d6;
+}
+
+#connectDriveBtn:focus {
+  outline: none;
+  border-color: #0366d6;
+}
+
+.google-icon {
+  width: 24px;
+  height: 24px;
+  margin-right: 8px;
+}
