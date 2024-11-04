@@ -132,27 +132,73 @@ function handleFileUpload(authToken, file) {
       }
     };
 
-    xhr.onload = function () {
+    xhr.onload = async function () {
       if (this.status === 200 || this.status === 201) {
-        finalizeUpload(file.name);
+        const res = JSON.parse(this.response);
+        console.log("___finalizeUpload", res);
+        const shareUrl = await createShareLink(res, authToken);
+        finalizeUpload(file.name, shareUrl);
       } else if (this.status === 308) {
         uploadedSize += chunkSize;
         const rangeHeader = this.getResponseHeader("Range");
         const nextBytePosition = parseInt(rangeHeader.split("-")[1], 10) + 1;
         uploadChunk(uploadUrl, file, nextBytePosition);
       } else {
-        displayError(`Failed to upload chunk. Status: ${this.status}`);
+        showSnackBar(`Failed to upload chunk. Status: ${this.status}`);
       }
     };
 
     xhr.onerror = function () {
-      displayError("Network error occurred!");
+      showSnackBar("Network error occurred!");
     };
 
     xhr.send(chunk);
   };
 
   initiateResumableUpload(authToken, file, uploadChunk);
+}
+
+async function createShareLink({ id, mimeType }, accessToken) {
+  // console.log("___createShareLink", id, mimeType);
+
+  // Step 2: Set permissions to allow anyone with the link to view
+  const permissionResponse = await fetch(
+    `https://www.googleapis.com/drive/v3/files/${id}/permissions`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        role: "reader",
+        type: "anyone",
+      }),
+    }
+  );
+  if (!permissionResponse.ok) {
+    throw new Error("Failed to set file permissions.");
+  }
+  console.log("Permissions set to public.");
+
+  let shareableLink;
+
+  if (mimeType && mimeType.startsWith("image/")) {
+    shareableLink = `#image(https://drive.google.com/thumbnail?id=${id}&sz=w2000)`;
+  } else {
+    const linkResponse = await fetch(
+      `https://www.googleapis.com/drive/v3/files/${id}?fields=webViewLink`,
+      {
+        method: "GET",
+        headers: { Authorization: `Bearer ${accessToken}` },
+      }
+    );
+    const linkResult = await linkResponse.json();
+    shareableLink = linkResult.webViewLink;
+  }
+  console.log("Shareable link:", shareableLink);
+
+  return shareableLink;
 }
 
 function initiateResumableUpload(authToken, file, uploadChunk) {
@@ -176,12 +222,22 @@ function initiateResumableUpload(authToken, file, uploadChunk) {
       const uploadUrl = this.getResponseHeader("Location");
       uploadChunk(uploadUrl, file, 0);
     } else {
-      displayError(`Failed to initiate upload. Status: ${this.status}`);
+      const res = JSON.parse(this.response);
+      const firstError = res?.error?.errors?.[0] ?? {};
+      if (firstError.reason == "notFound" && firstError.location == "fileId") {
+        defaultFolderId = null;
+        // Folder has been deleted
+        processFolder(authToken, () =>
+          initiateResumableUpload(authToken, file, uploadChunk)
+        );
+        return;
+      }
+      showSnackBar(`Failed to initiate upload: ${this.response}`);
     }
   };
 
   xhr.onerror = function () {
-    displayError("Network error occurred!");
+    showSnackBar("Network error occurred!");
   };
 
   xhr.send(JSON.stringify(fileMetadata));
@@ -196,19 +252,35 @@ function updateUploadProgress(fileName, percentComplete) {
   progressElement.progressText.textContent = `${percentComplete.toFixed(2)}%`;
 }
 
-function finalizeUpload(fileName) {
+function finalizeUpload(fileName, shareUrl) {
   const progressElement = uploadProgress[fileName];
   if (progressElement) {
     progressElement.progressBar.style.display = "none";
     progressElement.progressText.style.display = "none";
-    const doneMessage = document.createElement("span");
-    doneMessage.textContent = "Done";
-    doneMessage.className = "done-message";
+    const copyButton = document.createElement("button");
+    copyButton.textContent = "Copy";
+    copyButton.className = "copy-button";
+    copyButton.addEventListener("click", () => {
+      navigator.clipboard.writeText(shareUrl);
+      showSnackBar(`Copied: ${shareUrl}`);
+    });
     progressElement.container
       .querySelector(".uploading-file-name")
-      .appendChild(doneMessage);
+      .appendChild(copyButton);
     delete uploadProgress[fileName];
   }
+}
+
+function showSnackBar(message) {
+  var sb = document.getElementById("snackbar");
+
+  //this is where the class name will be added & removed to activate the css
+  sb.className = "show";
+  sb.textContent = message;
+
+  setTimeout(() => {
+    sb.className = sb.className.replace("show", "");
+  }, 2000);
 }
 
 function createProgressElement(fileName) {
@@ -235,21 +307,6 @@ function createProgressElement(fileName) {
     progressText,
     completionMessage: messageContainer,
   };
-}
-
-function displayError(errorMessage) {
-  const errorContainer = document.createElement("div");
-  errorContainer.className = "error-message";
-  const errorText = document.createTextNode("Error: " + errorMessage);
-  errorContainer.appendChild(errorText);
-
-  const closeButton = document.createElement("button");
-  closeButton.textContent = "X";
-  closeButton.addEventListener("click", () => {
-    errorContainer.remove();
-  });
-  errorContainer.insertBefore(closeButton, errorText);
-  document.body.insertBefore(errorContainer, document.body.firstChild);
 }
 
 function toggleAppDisplay(isConnected) {
@@ -363,11 +420,10 @@ document.addEventListener("DOMContentLoaded", function () {
                 );
               })
               .catch((error) => {
-                console.error("Failed to download the file:", error);
-                displayError("Failed to download the file: " + error);
+                showSnackBar("Failed to download the file: " + error);
               });
           } else {
-            console.error("Invalid URL");
+            showSnackBar("Invalid URL");
           }
         });
 
@@ -381,7 +437,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 document.getElementById("connectDrive").style.display = "none";
                 document.querySelector(".app").style.display = "flex";
               } else {
-                console.error("Failed to obtain access token.");
+                showSnackBar("Failed to obtain access token.");
               }
             }
           );
@@ -400,7 +456,7 @@ document.addEventListener("DOMContentLoaded", function () {
                   defaultFolderId = null;
                   chrome.storage.local.remove("defaultFolderId", function () {
                     if (chrome.runtime.lastError) {
-                      console.log(
+                      showSnackBar(
                         "Error clearing defaultFolderId in storage:",
                         chrome.runtime.lastError
                       );
@@ -422,17 +478,12 @@ document.addEventListener("DOMContentLoaded", function () {
                               }
                             );
                           } else {
-                            console.error("Error when revoking token");
+                            showSnackBar("Error when revoking token");
                           }
                         })
                         .catch((error) => {
-                          console.error(
-                            "Error when executing request to the server:",
-                            error
-                          );
-                          displayError(
-                            "Error when executing request to the server: " +
-                              error
+                          showSnackBar(
+                            `Error when executing request to the server: ${error}`
                           );
                         });
                     }

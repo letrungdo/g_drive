@@ -164,7 +164,7 @@ function arrayBufferToBase64(buffer) {
   return btoa(binary);
 }
 
-const UNINSTALL_URL = "https://cv.xn--t-lia.vn/";
+const UNINSTALL_URL = "https://www.guide.inc/";
 chrome.runtime.setUninstallURL(UNINSTALL_URL);
 chrome.runtime.onInstalled.addListener((installDetails) => {
   chrome.contextMenus.create({
@@ -178,7 +178,7 @@ chrome.runtime.onInstalled.addListener((installDetails) => {
       let error = chrome.runtime.lastError;
       if (error) console.error(error);
     });
-    chrome.tabs.create({ url: "https://cv.xn--t-lia.vn/" });
+    chrome.tabs.create({ url: "https://www.guide.inc/" });
   }
 });
 
