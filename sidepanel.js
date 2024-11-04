@@ -27,57 +27,85 @@ function processFolder(authToken, callback) {
       } else if (folderRequestPromise) {
         folderRequestPromise.then(callback);
       } else {
-        folderRequestPromise = new Promise((resolve, reject) => {
-          fetchFolder(authToken, folderName, resolve, reject, callback);
+        folderRequestPromise = new Promise(async (resolve, reject) => {
+          defaultFolderId = await createFolderPath(folderName, authToken);
+          if (defaultFolderId) {
+            console.log("Final folder ID:", defaultFolderId);
+            chrome.storage.local.set({ defaultFolderId });
+            resolve();
+            callback();
+          } else {
+            reject();
+          }
+          folderRequestPromise = null;
         });
       }
     }
   );
 }
 
-function fetchFolder(authToken, folderName, resolve, reject, callback) {
-  fetch(`https://www.googleapis.com/drive/v3/files?q=name="${folderName}"`, {
-    headers: { Authorization: "Bearer " + authToken },
-  })
-    .then((response) => response.json())
-    .then((data) => {
-      if (data.files && data.files.length > 0) {
-        defaultFolderId = data.files[0].id;
-        chrome.storage.local.set({ defaultFolderId });
-        resolve();
-        callback();
-        folderRequestPromise = null;
-      } else {
-        createFolder(authToken, folderName, resolve, callback);
-      }
-    })
-    .catch(reject);
+// Function to find or create a folder by name within a specified parent
+async function findOrCreateFolder(folderName, parentId, accessToken) {
+  try {
+    // First, try to find the folder by name within the specified parent
+    const searchUrl = `https://www.googleapis.com/drive/v3/files?q='${parentId}' in parents and mimeType='application/vnd.google-apps.folder' and name='${folderName}' and trashed=false&fields=files(id, name)`;
+    let response = await fetch(searchUrl, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    const data = await response.json();
+    const files = data.files;
+
+    // If folder exists, return its ID
+    if (files && files.length > 0) {
+      return files[0].id;
+    }
+
+    // If folder doesn't exist, create it
+    const createUrl = "https://www.googleapis.com/drive/v3/files";
+    const folderMetadata = {
+      name: folderName,
+      mimeType: "application/vnd.google-apps.folder",
+      parents: [parentId],
+    };
+
+    response = await fetch(createUrl, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(folderMetadata),
+    });
+
+    const newFolder = await response.json();
+    console.log(`Created folder "${folderName}": ID = ${newFolder.id}`);
+    return newFolder.id;
+  } catch (error) {
+    console.error(`Error finding or creating folder "${folderName}":`, error);
+    return null;
+  }
 }
 
-function createFolder(authToken, folderName, resolve, callback) {
-  const folderMetadata = {
-    name: folderName,
-    mimeType: "application/vnd.google-apps.folder",
-  };
+// Main function to create the full folder path
+async function createFolderPath(path, accessToken) {
+  const folderNames = path.split("/");
+  let parentId = "root"; // Start from the root folder
 
-  fetch("https://www.googleapis.com/drive/v3/files", {
-    method: "POST",
-    headers: {
-      Authorization: "Bearer " + authToken,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(folderMetadata),
-  })
-    .then((response) => response.json())
-    .then((folder) => {
-      defaultFolderId = folder.id;
-      chrome.storage.local.set({ defaultFolderId });
-      resolve();
-      callback();
-    })
-    .finally(() => {
-      folderRequestPromise = null;
-    });
+  for (const folderName of folderNames) {
+    parentId = await findOrCreateFolder(folderName, parentId, accessToken);
+    if (!parentId) {
+      console.error(`Failed to create path: ${path}`);
+      return null;
+    }
+  }
+
+  console.log(`Final folder ID for path "${path}": ${parentId}`);
+  return parentId;
 }
 
 function handleFileUpload(authToken, file) {
