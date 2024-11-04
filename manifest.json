@@ -1,4 +1,5 @@
 {
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAtvdwWu2DmGdmAYg+Mc2KKJp/3Ud0UMPOSBu5X8jHHsnWoWLadImKW1sljFoXZTLUpAIdPnonYRzYOK3D9dwnIo8E8JIxJSrYesfILgJZjVyX+mfHA3omlHk53b1MsWDoeXMOGda22MoUSWFvbuYEpcYKA0zxItYLa/bARO5cO0hnMjIVfwHW/+Q4Ddty2oYk0nf64s4sDYFvGjSlPi5/3qLUX+EVhj1ssOb+/bbyNlm1WQX7LcimlJlSWrVQJysxWK4Ki5pw8YXo7iBAkySoPa8ZOqNiSGQkvdi/RrAaajEpYcLzKe+yzmZQWFKd49xkc346mC2+l3oIKBF0Kd2WjQIDAQAB",
   "update_url": "https://clients2.google.com/service/update2/crx",
   "manifest_version": 3,
   "name": "__MSG_extName__",

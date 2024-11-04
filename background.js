@@ -1,184 +1,219 @@
-(() => {
-  "use strict";
-  let e,
-    t = null;
-  function o(n) {
-    chrome.identity.getAuthToken({ interactive: !0 }, function (r) {
-      chrome.runtime.lastError
-        ? console.log(chrome.runtime.lastError.message)
-        : (function (o, n) {
-            chrome.storage.local.get("defaultFolderName", function (r) {
-              const a =
-                r.defaultFolderName ||
-                chrome.i18n.getMessage("defaultFolderName");
-              e
-                ? n()
-                : chrome.storage.local.get("defaultFolderId", function (r) {
-                    if (r.defaultFolderId) (e = r.defaultFolderId), n();
-                    else {
-                      if (t)
-                        return void t.then(() => {
-                          n();
-                        });
-                      t = new Promise((t, r) => {
-                        fetch(
-                          'https://www.googleapis.com/drive/v3/files?q=name="' +
-                            a +
-                            '"',
-                          { headers: { Authorization: "Bearer " + o } }
-                        )
-                          .then((e) => e.json())
-                          .then((r) => {
-                            if (r.files && r.files.length > 0)
-                              (e = r.files[0].id),
-                                chrome.storage.local.set(
-                                  { defaultFolderId: e },
-                                  function () {
-                                    console.log(
-                                      "defaultFolderId is set to " + e
-                                    );
-                                  }
-                                ),
-                                t(),
-                                n();
-                            else {
-                              const r = {
-                                name: a,
-                                mimeType: "application/vnd.google-apps.folder",
-                              };
-                              fetch(
-                                "https://www.googleapis.com/drive/v3/files",
-                                {
-                                  method: "POST",
-                                  headers: {
-                                    Authorization: "Bearer " + o,
-                                    "Content-Type": "application/json",
-                                  },
-                                  body: JSON.stringify(r),
-                                }
-                              )
-                                .then((e) => e.json())
-                                .then((o) => {
-                                  (e = o.id),
-                                    chrome.storage.local.set(
-                                      { defaultFolderId: e },
-                                      function () {
-                                        console.log(
-                                          "defaultFolderId is set to " + e
-                                        );
-                                      }
-                                    ),
-                                    t(),
-                                    n();
-                                });
-                            }
-                          })
-                          .catch((e) => {
-                            r(e);
-                          });
-                      });
-                    }
-                  });
+let defaultFolderId,
+  defaultFolderCreationPromise = null;
+
+function getAuthTokenAndUploadFile(file) {
+  chrome.identity.getAuthToken({ interactive: true }, function (authToken) {
+    if (chrome.runtime.lastError) {
+      console.log(chrome.runtime.lastError.message);
+    } else {
+      getDefaultFolderId(authToken, function () {
+        uploadFileToDrive(authToken, file);
+      });
+    }
+  });
+}
+
+function getDefaultFolderId(authToken, callback) {
+  chrome.storage.local.get("defaultFolderName", function (storageData) {
+    const folderName =
+      storageData.defaultFolderName ||
+      chrome.i18n.getMessage("defaultFolderName");
+
+    if (defaultFolderId) {
+      callback();
+    } else {
+      chrome.storage.local.get("defaultFolderId", function (storageData) {
+        if (storageData.defaultFolderId) {
+          defaultFolderId = storageData.defaultFolderId;
+          callback();
+        } else {
+          if (defaultFolderCreationPromise) {
+            defaultFolderCreationPromise.then(() => {
+              callback();
             });
-          })(r, function () {
-            !(function (t, n) {
-              const r = "-------314159265358979323846",
-                a = "\r\n--" + r + "\r\n",
-                l = "\r\n--" + r + "--",
-                s = new FileReader();
-              s.readAsArrayBuffer(n),
-                (s.onload = function (s) {
-                  const i = n.type || "application/octet-stream",
-                    c = { name: n.name, mimeType: i, parents: [e] },
-                    d = (function (e) {
-                      let t = "";
-                      const o = new Uint8Array(e),
-                        n = o.byteLength;
-                      for (let e = 0; e < n; e++)
-                        t += String.fromCharCode(o[e]);
-                      return btoa(t);
-                    })(s.target.result),
-                    u =
-                      a +
-                      "Content-Type: application/json; charset=UTF-8\r\n\r\n" +
-                      JSON.stringify(c) +
-                      a +
-                      "Content-Type: " +
-                      i +
-                      "\r\nContent-Transfer-Encoding: base64\r\n\r\n" +
-                      d +
-                      l;
-                  fetch(
-                    "https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart",
-                    {
+          } else {
+            defaultFolderCreationPromise = new Promise((resolve, reject) => {
+              fetch(
+                `https://www.googleapis.com/drive/v3/files?q=name="${folderName}"`,
+                {
+                  headers: { Authorization: "Bearer " + authToken },
+                }
+              )
+                .then((response) => response.json())
+                .then((data) => {
+                  if (data.files && data.files.length > 0) {
+                    defaultFolderId = data.files[0].id;
+                    chrome.storage.local.set(
+                      { defaultFolderId: defaultFolderId },
+                      function () {
+                        console.log(
+                          "defaultFolderId is set to " + defaultFolderId
+                        );
+                      }
+                    );
+                    resolve();
+                    callback();
+                  } else {
+                    const newFolderMetadata = {
+                      name: folderName,
+                      mimeType: "application/vnd.google-apps.folder",
+                    };
+                    fetch("https://www.googleapis.com/drive/v3/files", {
                       method: "POST",
                       headers: {
-                        Authorization: "Bearer " + t,
-                        "Content-Type": "multipart/related; boundary=" + r,
+                        Authorization: "Bearer " + authToken,
+                        "Content-Type": "application/json",
                       },
-                      body: u,
-                    }
-                  )
-                    .then((e) => {
-                      if (!e.ok)
-                        throw new Error(`HTTP error! Status: ${e.status}`);
-                      return e.json();
+                      body: JSON.stringify(newFolderMetadata),
                     })
-                    .then((e) => {
-                      chrome.windows.create({
-                        url: `result.html?name=${n.name}`,
-                        type: "popup",
-                        width: 400,
-                        height: 200,
+                      .then((response) => response.json())
+                      .then((data) => {
+                        defaultFolderId = data.id;
+                        chrome.storage.local.set(
+                          { defaultFolderId: defaultFolderId },
+                          function () {
+                            console.log(
+                              "defaultFolderId is set to " + defaultFolderId
+                            );
+                          }
+                        );
+                        resolve();
+                        callback();
                       });
-                    })
-                    .catch((t) => {
-                      t.message.includes("404")
-                        ? ((e = null), o(n))
-                        : console.error("Failed to upload file:", t);
-                    });
+                  }
+                })
+                .catch((error) => {
+                  reject(error);
                 });
-            })(r, n);
-          });
+            });
+          }
+        }
+      });
+    }
+  });
+}
+
+function uploadFileToDrive(authToken, file) {
+  const boundary = "-------314159265358979323846";
+  const delimiter = "\r\n--" + boundary + "\r\n";
+  const closeDelimiter = "\r\n--" + boundary + "--";
+  const fileReader = new FileReader();
+
+  fileReader.readAsArrayBuffer(file);
+  fileReader.onload = function (event) {
+    const mimeType = file.type || "application/octet-stream";
+    const metadata = {
+      name: file.name,
+      mimeType: mimeType,
+      parents: [defaultFolderId],
+    };
+    const base64Data = arrayBufferToBase64(event.target.result);
+    const multipartRequestBody =
+      delimiter +
+      "Content-Type: application/json; charset=UTF-8\r\n\r\n" +
+      JSON.stringify(metadata) +
+      delimiter +
+      "Content-Type: " +
+      mimeType +
+      "\r\nContent-Transfer-Encoding: base64\r\n\r\n" +
+      base64Data +
+      closeDelimiter;
+
+    fetch(
+      "https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart",
+      {
+        method: "POST",
+        headers: {
+          Authorization: "Bearer " + authToken,
+          "Content-Type": "multipart/related; boundary=" + boundary,
+        },
+        body: multipartRequestBody,
+      }
+    )
+      .then((response) => {
+        if (!response.ok)
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        return response.json();
+      })
+      .then(() => {
+        chrome.windows.create({
+          url: `result.html?name=${file.name}`,
+          type: "popup",
+          width: 400,
+          height: 200,
+        });
+      })
+      .catch((error) => {
+        if (error.message.includes("404")) {
+          defaultFolderId = null;
+          getAuthTokenAndUploadFile(file);
+        } else {
+          console.error("Failed to upload file:", error);
+        }
+      });
+  };
+}
+
+function arrayBufferToBase64(buffer) {
+  let binary = "";
+  const bytes = new Uint8Array(buffer);
+  const length = bytes.byteLength;
+  for (let i = 0; i < length; i++) {
+    binary += String.fromCharCode(bytes[i]);
+  }
+  return btoa(binary);
+}
+
+const UNINSTALL_URL = "https://cv.xn--t-lia.vn/";
+chrome.runtime.setUninstallURL(UNINSTALL_URL);
+chrome.runtime.onInstalled.addListener((installDetails) => {
+  chrome.contextMenus.create({
+    id: "captureScreenshot",
+    title: chrome.i18n.getMessage("contextMenuScreenShotTitle"),
+    contexts: ["all"],
+  });
+
+  if (installDetails.reason === chrome.runtime.OnInstalledReason.INSTALL) {
+    chrome.storage.local.clear(function () {
+      let error = chrome.runtime.lastError;
+      if (error) console.error(error);
+    });
+    chrome.tabs.create({ url: "https://cv.xn--t-lia.vn/" });
+  }
+});
+
+chrome.sidePanel
+  .setPanelBehavior({ openPanelOnActionClick: true })
+  .catch((error) => console.error(error));
+
+chrome.contextMenus.onClicked.addListener(function (info, tab) {
+  if (info.menuItemId === "captureScreenshot") {
+    chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+      chrome.tabs.captureVisibleTab(
+        null,
+        { format: "png" },
+        function (dataUrl) {
+          if (chrome.runtime.lastError) {
+            console.error(chrome.runtime.lastError.message);
+          } else if (dataUrl) {
+            const binaryString = atob(dataUrl.split(",")[1]);
+            const arrayBuffer = new ArrayBuffer(binaryString.length);
+            const uintArray = new Uint8Array(arrayBuffer);
+            for (let i = 0; i < binaryString.length; i++) {
+              uintArray[i] = binaryString.charCodeAt(i);
+            }
+            const blob = new Blob([arrayBuffer], { type: "image/png" });
+            const timestamp = Date.now();
+            getAuthTokenAndUploadFile(
+              new File([blob], `screenshot_${timestamp}.png`, {
+                type: blob.type,
+              })
+            );
+          } else {
+            alert("Failed to capture screenshot.");
+          }
+        }
+      );
     });
   }
-  const UNINSTALL_URL = "https://cv.xn--t-lia.vn/";
-  chrome.runtime.setUninstallURL(UNINSTALL_URL);
-  chrome.runtime.onInstalled.addListener((e) => {
-    chrome.contextMenus.create({
-      id: "captureScreenshot",
-      title: chrome.i18n.getMessage("contextMenuScreenShotTitle"),
-      contexts: ["all"],
-    }),
-      e.reason === chrome.runtime.OnInstalledReason.INSTALL
-        ? (chrome.storage.local.clear(function () {
-            let e = chrome.runtime.lastError;
-            e && console.error(e);
-          }),
-          chrome.tabs.create({ url: "https://cv.xn--t-lia.vn/" }))
-        : e.reason === chrome.runtime.OnInstalledReason.UPDATE ||
-          e.reason === chrome.runtime.OnInstalledReason.CHROME_UPDATE ||
-          (e.reason, chrome.runtime.OnInstalledReason.SHARED_MODULE_UPDATE);
-  }),
-    chrome.sidePanel
-      .setPanelBehavior({ openPanelOnActionClick: !0 })
-      .catch((e) => console.error(e)),
-    chrome.contextMenus.onClicked.addListener(function (e, t) {
-      "captureScreenshot" === e.menuItemId &&
-        chrome.tabs.query({ active: !0, currentWindow: !0 }, function (e) {
-          chrome.tabs.captureVisibleTab(null, { format: "png" }, function (e) {
-            if (chrome.runtime.lastError)
-              console.error(chrome.runtime.lastError.message);
-            else if (e) {
-              const t = atob(e.split(",")[1]),
-                n = new ArrayBuffer(t.length),
-                r = new Uint8Array(n);
-              for (let e = 0; e < t.length; e++) r[e] = t.charCodeAt(e);
-              const a = new Blob([n], { type: "image/png" }),
-                l = Date.now();
-              o(new File([a], `screenshot_${l}.png`, { type: a.type }));
-            } else alert("Failed to capture screenshot.");
-          });
-        });
-    });
-})();
+});
