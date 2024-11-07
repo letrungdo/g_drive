@@ -258,6 +258,8 @@ function finalizeUpload(fileName, shareUrl) {
     progressElement.progressBar.style.display = "none";
     progressElement.progressText.style.display = "none";
     const copyButton = document.createElement("button");
+    copyButton.dataset.shareUrl = shareUrl;
+
     copyButton.textContent = "Copy";
     copyButton.className = "copy-button";
     copyButton.addEventListener("click", () => {
@@ -268,7 +270,18 @@ function finalizeUpload(fileName, shareUrl) {
       .querySelector(".uploading-file-name")
       .appendChild(copyButton);
     delete uploadProgress[fileName];
+
+    document.getElementById("btnCopyAll").style.display = "flex";
   }
+}
+
+function onCopyAll() {
+  const shareUrls = [];
+  document.querySelectorAll(".copy-button").forEach((e) => {
+    shareUrls.push(e.dataset.shareUrl);
+  });
+  navigator.clipboard.writeText(shareUrls.join("\n"));
+  showSnackBar(`Copied All`);
 }
 
 function showSnackBar(message) {
@@ -388,6 +401,13 @@ document.addEventListener("DOMContentLoaded", function () {
               });
             }
           });
+        });
+
+      document
+        .getElementById("btnCopyAll")
+        .addEventListener("click", function (e) {
+          e.preventDefault();
+          onCopyAll();
         });
 
       document
