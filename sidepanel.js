@@ -1,4 +1,5 @@
 let defaultFolderId,
+  currentBacklogID,
   uploadProgress = {},
   folderRequestPromise = null;
 
@@ -14,13 +15,32 @@ function initiateFileUpload(file) {
   });
 }
 
+async function getCurrentTabUrl() {
+  const queryOptions = { active: true, lastFocusedWindow: true };
+  const [tab] = await chrome.tabs.query(queryOptions);
+  return tab?.url;
+}
+
+async function getCurrentBacklogId() {
+  const url = await getCurrentTabUrl();
+  const match = url?.match(/view\/([A-Z]+-\d+)/);
+  return match ? match[1] : null;
+}
+
 function processFolder(authToken, callback) {
   chrome.storage.local.get(
     ["defaultFolderName", "defaultFolderId"],
-    function (storageData) {
+    async function (storageData) {
       const folderName =
         storageData.defaultFolderName ||
         chrome.i18n.getMessage("defaultFolderName");
+
+      const backlogId = await getCurrentBacklogId();
+      if (backlogId == null || currentBacklogID != backlogId) {
+        defaultFolderId = null; // reset Id to create new folder
+      }
+      currentBacklogID = backlogId;
+      console.log("____currentBacklogID", currentBacklogID);
 
       if (defaultFolderId) {
         callback();
@@ -94,6 +114,9 @@ async function findOrCreateFolder(folderName, parentId, accessToken) {
 // Main function to create the full folder path
 async function createFolderPath(path, accessToken) {
   const folderNames = path.split("/");
+  if (currentBacklogID) {
+    folderNames.push(currentBacklogID);
+  }
   let parentId = "root"; // Start from the root folder
 
   for (const folderName of folderNames) {
