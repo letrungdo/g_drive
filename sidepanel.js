@@ -195,7 +195,8 @@ async function createShareLink({ id, mimeType }, accessToken) {
       },
       body: JSON.stringify({
         role: "reader",
-        type: "anyone",
+        type: "domain",
+        domain: "guide.inc",
       }),
     }
   );
